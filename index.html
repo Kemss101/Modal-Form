@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Modal Form Example</title>
+  <style>
+    #message {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      font-size: 16px;
+      color: black;
+    }
+    #submittedData {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      font-size: 18px;
+      color: black;
+      white-space: pre-line;
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: 300px;
+      background-color: #f9fff9;
+    }
+    .label {
+      font-weight: bold;
+      font-size: 18px;
+      color: black;
+    }
+    .value {
+      font-weight: normal;
+      font-size: 16px;
+      color: grey;
+      display: inline-block;
+      margin-left: 6px;
+    }
+    #myForm {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #f0f0f0;
+      padding: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+      width: 300px;
+      font-family: Arial, sans-serif;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 6px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+    .shake {
+      animation: shake 0.5s;
+      border: 1px solid red !important;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="message">Press <strong>Ctrl + Alt + N</strong> to open the form</div>
+  <div id="submittedData"></div>
+
+  <div id="myForm">
+    <h3>Fill the form</h3>
+    <form id="form" novalidate>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" placeholder="Enter name" required />
+
+      <label for="age">Age:</label>
+      <input type="number" id="age" name="age" placeholder="Enter age" min="0" required />
+
+      <label for="gender">Gender:</label>
+      <select id="gender" name="gender" required>
+        <option value="" disabled selected>Select gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+
+      <div id="otherInput" style="display:none; margin-top:10px;">
+        <label for="otherValue">Please specify:</label>
+        <input type="text" id="otherValue" placeholder="Type here..." />
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    const modal = document.getElementById('myForm');
+    const gender = document.getElementById('gender');
+    const otherInput = document.getElementById('otherInput');
+    const otherValue = document.getElementById('otherValue');
+    const formElement = document.getElementById('form');
+    const submitted = document.getElementById('submittedData');
+
+    document.addEventListener('keydown', event => {
+      if (event.ctrlKey && event.altKey && event.key.toLowerCase() === 'n') {
+        event.preventDefault();
+        if (modal.style.display === 'none' || modal.style.display === '') {
+          modal.style.display = 'block';
+          document.getElementById('name').focus();
+        } else {
+          modal.style.display = 'none';
+          formElement.reset();
+          otherInput.style.display = 'none';
+        }
+      }
+
+      if (event.key === 'Escape' && modal.style.display === 'block') {
+        event.preventDefault();
+        formElement.reset();
+        otherInput.style.display = 'none';
+        document.getElementById('name').focus();
+      }
+    });
+
+    gender.addEventListener('change', () => {
+      if (gender.value === 'other') {
+        otherInput.style.display = 'block';
+        otherValue.focus();
+      } else {
+        otherInput.style.display = 'none';
+        otherValue.value = '';
+        otherValue.classList.remove('shake');
+      }
+    });
+
+    formElement.addEventListener('submit', event => {
+      event.preventDefault();
+      if (gender.value === 'other' && otherValue.value.trim() === '') {
+        modal.classList.remove('shake');
+        void modal.offsetWidth;
+        modal.classList.add('shake');
+        otherValue.focus();
+        return;
+      }
+
+      const name = formElement.name.value.trim();
+      const age = formElement.age.value.trim();
+      let genderText = gender.value;
+      if (genderText === 'other') {
+        genderText += ` (${otherValue.value.trim()})`;
+      }
+
+      submitted.innerHTML ="<strong>Submitted Data:</strong><br>" +
+        `<span class="label">Name:</span><span class="value">${name}</span>\n` +
+        `<span class="label">Age:</span><span class="value">${age}</span>\n` +
+        `<span class="label">Gender:</span><span class="value">${genderText}</span>`;
+
+      formElement.reset();
+      modal.style.display = 'none';
+      otherInput.style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
